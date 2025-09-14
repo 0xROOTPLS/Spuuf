@@ -1,0 +1,302 @@
+<svg viewBox="0 0 1400 2000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#333"/>
+    </marker>
+    <pattern id="diagonalHatch" patternUnits="userSpaceOnUse" width="4" height="4">
+      <path d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" style="stroke:#666; stroke-width:0.5"/>
+    </pattern>
+  </defs>
+  
+  <style>
+    .process-box { fill: #e8f4f8; stroke: #2196F3; stroke-width: 2; }
+    .spoofing-box { fill: #fff3e0; stroke: #ff9800; stroke-width: 2; }
+    .execution-box { fill: #f3e5f5; stroke: #9c27b0; stroke-width: 2; }
+    .critical-box { fill: #ffebee; stroke: #f44336; stroke-width: 2; }
+    .memory-box { fill: #e8f5e9; stroke: #4caf50; stroke-width: 2; }
+    .text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; }
+    .title { font-weight: bold; font-size: 14px; }
+    .small { font-size: 10px; fill: #666; }
+    .flow-line { stroke: #333; stroke-width: 1.5; fill: none; marker-end: url(#arrowhead); }
+    .spoofed-line { stroke: #ff9800; stroke-width: 2; fill: none; stroke-dasharray: 5,3; marker-end: url(#arrowhead); }
+  </style>
+
+  <!-- Title -->
+  <text x="700" y="30" class="text" style="font-size: 20px; font-weight: bold; text-anchor: middle;">SPUUF Detailed Execution Flow</text>
+  
+  <!-- Legend -->
+  <rect x="50" y="50" width="150" height="25" class="process-box"/>
+  <text x="125" y="68" class="text small" text-anchor="middle">Normal Process</text>
+  
+  <rect x="210" y="50" width="150" height="25" class="spoofing-box"/>
+  <text x="285" y="68" class="text small" text-anchor="middle">Stack Spoofing</text>
+  
+  <rect x="370" y="50" width="150" height="25" class="execution-box"/>
+  <text x="445" y="68" class="text small" text-anchor="middle">Execution</text>
+  
+  <rect x="530" y="50" width="150" height="25" class="critical-box"/>
+  <text x="605" y="68" class="text small" text-anchor="middle">Critical Operation</text>
+  
+  <rect x="690" y="50" width="150" height="25" class="memory-box"/>
+  <text x="765" y="68" class="text small" text-anchor="middle">Memory Operation</text>
+  
+  <line x1="850" y1="62" x2="920" y2="62" class="spoofed-line"/>
+  <text x="930" y="68" class="text small">Spoofed Call</text>
+
+  <!-- Main Flow -->
+  
+  <!-- 1. Initialization -->
+  <rect x="100" y="120" width="200" height="60" class="process-box"/>
+  <text x="200" y="145" class="text title" text-anchor="middle">main()</text>
+  <text x="200" y="165" class="text small" text-anchor="middle">Program Entry Point</text>
+  
+  <!-- 2. NT API Resolution -->
+  <rect x="100" y="220" width="200" height="80" class="spoofing-box"/>
+  <text x="200" y="245" class="text title" text-anchor="middle">InitializeNtApis()</text>
+  <text x="200" y="265" class="text small" text-anchor="middle">PEB Walking</text>
+  <text x="200" y="280" class="text small" text-anchor="middle">Checksum Resolution</text>
+  <text x="200" y="295" class="text small" text-anchor="middle">No IAT Entries</text>
+  
+  <!-- PEB Detail -->
+  <rect x="350" y="220" width="180" height="80" class="process-box" fill="url(#diagonalHatch)" opacity="0.3"/>
+  <rect x="350" y="220" width="180" height="80" class="process-box" fill="none"/>
+  <text x="440" y="245" class="text title" text-anchor="middle">GetPEBAddress()</text>
+  <text x="440" y="265" class="text small" text-anchor="middle">__readgsqword(0x60)</text>
+  <text x="440" y="285" class="text small" text-anchor="middle">Access PEB->Ldr</text>
+  
+  <!-- Manual GetProc -->
+  <rect x="580" y="220" width="200" height="80" class="process-box"/>
+  <text x="680" y="245" class="text title" text-anchor="middle">ManualGetProcAddress()</text>
+  <text x="680" y="265" class="text small" text-anchor="middle">Module Hash Match</text>
+  <text x="680" y="280" class="text small" text-anchor="middle">Export Table Parse</text>
+  <text x="680" y="295" class="text small" text-anchor="middle">Function Hash Match</text>
+  
+  <!-- 3. Memory Creation -->
+  <rect x="100" y="340" width="200" height="80" class="memory-box"/>
+  <text x="200" y="365" class="text title" text-anchor="middle">CreateMemoryWithStack()</text>
+  <text x="200" y="385" class="text small" text-anchor="middle">Random Padding</text>
+  <text x="200" y="400" class="text small" text-anchor="middle">Offset Calculation</text>
+  <text x="200" y="415" class="text small" text-anchor="middle">Payload Copy</text>
+  
+  <!-- Fake Stack Creation -->
+  <rect x="350" y="340" width="180" height="80" class="spoofing-box"/>
+  <text x="440" y="365" class="text title" text-anchor="middle">CreateFileOperationsStack()</text>
+  <text x="440" y="385" class="text small" text-anchor="middle">kernelbase!CreateFileW</text>
+  <text x="440" y="400" class="text small" text-anchor="middle">ntdll!NtReadFile</text>
+  <text x="440" y="415" class="text small" text-anchor="middle">ntdll!NtWriteFile</text>
+  
+  <!-- Hidden Allocation (WIDER) -->
+  <rect x="580" y="340" width="240" height="80" class="critical-box"/>
+  <circle cx="588" cy="348" r="8" fill="#ff9800" opacity="0.9"/>
+  <text x="588" y="353" class="text small" style="font-weight: bold; fill: white;">1</text>
+  <text x="700" y="365" class="text title" text-anchor="middle">HiddenNtAllocateVirtualMemory()</text>
+  <text x="700" y="385" class="text small" text-anchor="middle">Save Return Address</text>
+  <text x="700" y="400" class="text small" text-anchor="middle">Spoof with kernelbase addr</text>
+  <text x="700" y="415" class="text small" text-anchor="middle">PAGE_EXECUTE_READWRITE</text>
+  
+  <!-- Address Pool -->
+  <rect x="870" y="340" width="180" height="80" class="spoofing-box"/>
+  <text x="960" y="365" class="text title" text-anchor="middle">FakeAddressPool</text>
+  <text x="960" y="385" class="text small" text-anchor="middle">GetRandomAddress()</text>
+  <text x="960" y="400" class="text small" text-anchor="middle">kernelbase exports</text>
+  <text x="960" y="415" class="text small" text-anchor="middle">Legitimate functions</text>
+  
+  <!-- NT Syscall -->
+  <rect x="1100" y="340" width="180" height="80" class="critical-box" fill="url(#diagonalHatch)" opacity="0.3"/>
+  <rect x="1100" y="340" width="180" height="80" class="critical-box" fill="none"/>
+  <text x="1190" y="365" class="text title" text-anchor="middle">NtAllocateVirtualMemory</text>
+  <text x="1190" y="385" class="text small" text-anchor="middle">SYSCALL</text>
+  <text x="1190" y="400" class="text small" text-anchor="middle">Spoofed Return Active</text>
+  <text x="1190" y="415" class="text small" text-anchor="middle">EDR Sees Fake Caller</text>
+  
+  <!-- 4. Thread Creation -->
+  <rect x="100" y="460" width="200" height="80" class="process-box"/>
+  <circle cx="108" cy="468" r="8" fill="#ff9800" opacity="0.9"/>
+  <text x="108" y="473" class="text small" style="font-weight: bold; fill: white;">2</text>
+  <text x="200" y="485" class="text title" text-anchor="middle">HiddenCreateThread()</text>
+  <text x="200" y="505" class="text small" text-anchor="middle">WorkerThread</text>
+  <text x="200" y="520" class="text small" text-anchor="middle">CREATE_SUSPENDED</text>
+  <text x="200" y="535" class="text small" text-anchor="middle">Spoofed Return</text>
+  
+  <!-- 5. Context Manipulation -->
+  <rect x="100" y="580" width="200" height="80" class="spoofing-box"/>
+  <text x="200" y="605" class="text title" text-anchor="middle">Thread Context Setup</text>
+  <text x="200" y="625" class="text small" text-anchor="middle">HiddenGetThreadContext()</text>
+  <text x="200" y="640" class="text small" text-anchor="middle">CONTEXT_FULL</text>
+  <text x="200" y="655" class="text small" text-anchor="middle">Capture Registers</text>
+  
+  <!-- Fake Stack Injection -->
+  <rect x="350" y="580" width="200" height="80" class="spoofing-box"/>
+  <text x="450" y="605" class="text title" text-anchor="middle">InitializeFakeThreadState()</text>
+  <text x="450" y="625" class="text small" text-anchor="middle">CreateNetworkOperationsStack()</text>
+  <text x="450" y="640" class="text small" text-anchor="middle">Calculate Frame Sizes</text>
+  <text x="450" y="655" class="text small" text-anchor="middle">Build Fake RSP Chain</text>
+  
+  <!-- Stack Frame Details -->
+  <rect x="600" y="580" width="200" height="80" class="process-box"/>
+  <text x="700" y="605" class="text title" text-anchor="middle">CalculateFunctionStackSize()</text>
+  <text x="700" y="625" class="text small" text-anchor="middle">Parse UNWIND_INFO</text>
+  <text x="700" y="640" class="text small" text-anchor="middle">UWOP_PUSH_NONVOL</text>
+  <text x="700" y="655" class="text small" text-anchor="middle">Frame Pointer Setup</text>
+  
+  <!-- Set Context -->
+  <rect x="850" y="580" width="200" height="80" class="critical-box"/>
+  <circle cx="858" cy="588" r="8" fill="#ff9800" opacity="0.9"/>
+  <text x="858" y="593" class="text small" style="font-weight: bold; fill: white;">3</text>
+  <text x="950" y="605" class="text title" text-anchor="middle">HiddenSetThreadContext()</text>
+  <text x="950" y="625" class="text small" text-anchor="middle">Modified RSP</text>
+  <text x="950" y="640" class="text small" text-anchor="middle">Fake Return Addresses</text>
+  <text x="950" y="655" class="text small" text-anchor="middle">Spoofed Call History</text>
+  
+  <!-- 6. Thread Execution -->
+  <rect x="100" y="700" width="200" height="80" class="execution-box"/>
+  <text x="200" y="725" class="text title" text-anchor="middle">HiddenResumeThread()</text>
+  <text x="200" y="745" class="text small" text-anchor="middle">Thread Starts</text>
+  <text x="200" y="760" class="text small" text-anchor="middle">Fake Stack Active</text>
+  <text x="200" y="775" class="text small" text-anchor="middle">Spoofed Return</text>
+  
+  <!-- Worker Thread -->
+  <rect x="350" y="700" width="200" height="80" class="execution-box"/>
+  <text x="450" y="725" class="text title" text-anchor="middle">WorkerThread()</text>
+  <text x="450" y="745" class="text small" text-anchor="middle">Executes with Fake Stack</text>
+  <text x="450" y="760" class="text small" text-anchor="middle">GenerateNoise()</text>
+  <text x="450" y="775" class="text small" text-anchor="middle">RandomDelay()</text>
+  
+  <!-- 7. JIT Execution -->
+  <rect x="100" y="820" width="200" height="80" class="execution-box"/>
+  <text x="200" y="845" class="text title" text-anchor="middle">HiddenJitExecute()</text>
+  <text x="200" y="865" class="text small" text-anchor="middle">Create Trampoline</text>
+  <text x="200" y="880" class="text small" text-anchor="middle">mov rax, payload_addr</text>
+  <text x="200" y="895" class="text small" text-anchor="middle">jmp rax</text>
+  
+  <!-- Trampoline Allocation -->
+  <rect x="350" y="820" width="200" height="80" class="memory-box"/>
+  <text x="450" y="845" class="text title" text-anchor="middle">Trampoline Creation</text>
+  <text x="450" y="865" class="text small" text-anchor="middle">HiddenNtAllocateVirtualMemory()</text>
+  <text x="450" y="880" class="text small" text-anchor="middle">Copy Stub Code</text>
+  <text x="450" y="895" class="text small" text-anchor="middle">PAGE_READWRITE</text>
+  
+  <!-- Protection Change (WIDER) -->
+  <rect x="600" y="820" width="240" height="80" class="critical-box"/>
+  <circle cx="608" cy="828" r="8" fill="#ff9800" opacity="0.9"/>
+  <text x="608" y="833" class="text small" style="font-weight: bold; fill: white;">4</text>
+  <text x="720" y="845" class="text title" text-anchor="middle">HiddenNtProtectVirtualMemory()</text>
+  <text x="720" y="865" class="text small" text-anchor="middle">PAGE_EXECUTE_READ</text>
+  <text x="720" y="880" class="text small" text-anchor="middle">Spoofed Return Active</text>
+  <text x="720" y="895" class="text small" text-anchor="middle">Make Executable</text>
+  
+  <!-- 8. Payload Execution -->
+  <rect x="100" y="940" width="200" height="80" class="critical-box"/>
+  <text x="200" y="965" class="text title" text-anchor="middle">Payload Execution</text>
+  <text x="200" y="985" class="text small" text-anchor="middle">Shellcode Runs</text>
+  <text x="200" y="1000" class="text small" text-anchor="middle">Via Trampoline</text>
+  <text x="200" y="1015" class="text small" text-anchor="middle">Indirect Call</text>
+  
+  <!-- What EDR Sees -->
+  <rect x="350" y="940" width="430" height="80" class="spoofing-box" fill="url(#diagonalHatch)" opacity="0.3"/>
+  <rect x="350" y="940" width="430" height="80" class="spoofing-box" fill="none"/>
+  <text x="565" y="965" class="text title" text-anchor="middle">What EDR Sees During Execution</text>
+  <text x="565" y="985" class="text small" text-anchor="middle">kernelbase!VirtualAlloc → NtAllocateVirtualMemory (not your code)</text>
+  <text x="565" y="1000" class="text small" text-anchor="middle">Fake call stack shows Registry/File operations</text>
+  <text x="565" y="1015" class="text small" text-anchor="middle">No direct executable→syscall pattern</text>
+  
+  <!-- 9. Cleanup -->
+  <rect x="100" y="1060" width="200" height="80" class="process-box"/>
+  <text x="200" y="1085" class="text title" text-anchor="middle">Cleanup</text>
+  <text x="200" y="1105" class="text small" text-anchor="middle">Free Trampoline</text>
+  <text x="200" y="1120" class="text small" text-anchor="middle">Thread Returns</text>
+  <text x="200" y="1135" class="text small" text-anchor="middle">WaitForSingleObject</text>
+  
+  <!-- Final Free (WIDER) -->
+  <rect x="350" y="1060" width="240" height="80" class="memory-box"/>
+  <text x="470" y="1085" class="text title" text-anchor="middle">HiddenNtFreeVirtualMemory()</text>
+  <text x="470" y="1105" class="text small" text-anchor="middle">Free g_BaseMemory</text>
+  <text x="470" y="1120" class="text small" text-anchor="middle">MEM_RELEASE</text>
+  <text x="470" y="1135" class="text small" text-anchor="middle">Spoofed Return</text>
+  
+  <!-- PCB-style Flow Lines with right angles and no overlaps -->
+  <!-- Main flow down -->
+  <path d="M 200 180 L 200 220" class="flow-line"/>
+  <path d="M 200 300 L 200 340" class="flow-line"/>
+  <path d="M 200 420 L 200 460" class="flow-line"/>
+  <path d="M 200 540 L 200 580" class="flow-line"/>
+  <path d="M 200 660 L 200 700" class="flow-line"/>
+  
+  <!-- InitializeNtApis to branches -->
+  <path d="M 300 260 L 320 260 L 320 260 L 350 260" class="flow-line"/>
+  <path d="M 530 260 L 550 260 L 550 260 L 580 260" class="flow-line"/>
+  
+  <!-- CreateMemoryWithStack branches (FROM EDGE) -->
+  <path d="M 300 380 L 320 380 L 320 380 L 350 380" class="flow-line"/>
+  <path d="M 300 380 L 320 380 L 320 310 L 560 310 L 560 380 L 580 380" class="spoofed-line"/>
+  
+  <!-- Hidden allocation to FakeAddressPool -->
+  <path d="M 820 380 L 850 380 L 850 380 L 870 380" class="spoofed-line"/>
+  
+  <!-- FakeAddressPool to NtAllocate -->
+  <path d="M 1050 380 L 1080 380 L 1080 380 L 1100 380" class="spoofed-line"/>
+  
+  <!-- Thread context flow -->
+  <path d="M 300 620 L 320 620 L 320 620 L 350 620" class="flow-line"/>
+  <path d="M 550 620 L 570 620 L 570 620 L 600 620" class="flow-line"/>
+  <path d="M 800 620 L 820 620 L 820 620 L 850 620" class="flow-line"/>
+  
+  <!-- Resume to Worker -->
+  <path d="M 300 740 L 320 740 L 320 740 L 350 740" class="flow-line"/>
+  
+  <!-- Worker to JIT -->
+  <path d="M 450 780 L 450 800 L 80 800 L 80 860 L 100 860" class="flow-line"/>
+  
+  <!-- JIT branches -->
+  <path d="M 300 860 L 320 860 L 320 860 L 350 860" class="spoofed-line"/>
+  <path d="M 550 860 L 570 860 L 570 860 L 600 860" class="spoofed-line"/>
+  
+  <!-- JIT to Payload -->
+  <path d="M 200 900 L 200 940" class="flow-line"/>
+  
+  <!-- Payload to Cleanup -->
+  <path d="M 200 1020 L 200 1060" class="flow-line"/>
+  <path d="M 300 1100 L 320 1100 L 320 1100 L 350 1100" class="flow-line"/>
+  
+  <!-- Spoofing Legend -->
+  <text x="100" y="1200" class="text title">Key Spoofing Points:</text>
+  <circle cx="110" cy="1220" r="8" fill="#ff9800" opacity="0.9"/>
+  <text x="110" y="1224" class="text small" style="font-weight: bold; fill: white; text-anchor: middle;">1</text>
+  <text x="130" y="1225" class="text small">Memory allocation with spoofed return (EDR sees kernelbase caller)</text>
+  
+  <circle cx="110" cy="1245" r="8" fill="#ff9800" opacity="0.9"/>
+  <text x="110" y="1249" class="text small" style="font-weight: bold; fill: white; text-anchor: middle;">2</text>
+  <text x="130" y="1250" class="text small">Thread creation with spoofed return</text>
+  
+  <circle cx="110" cy="1270" r="8" fill="#ff9800" opacity="0.9"/>
+  <text x="110" y="1274" class="text small" style="font-weight: bold; fill: white; text-anchor: middle;">3</text>
+  <text x="130" y="1275" class="text small">Fake call stack injected into thread context</text>
+  
+  <circle cx="110" cy="1295" r="8" fill="#ff9800" opacity="0.9"/>
+  <text x="110" y="1299" class="text small" style="font-weight: bold; fill: white; text-anchor: middle;">4</text>
+  <text x="130" y="1300" class="text small">Protection change with spoofed return</text>
+  
+  <!-- Stack Visualization -->
+  <text x="100" y="1350" class="text title">Stack During Syscall (What EDR Sees):</text>
+  <rect x="100" y="1370" width="400" height="30" stroke="#333" fill="#f0f0f0"/>
+  <text x="105" y="1390" class="text small">RSP → [ntdll!NtAllocateVirtualMemory]</text>
+  
+  <rect x="100" y="1400" width="400" height="30" stroke="#ff9800" fill="#fff3e0"/>
+  <text x="105" y="1420" class="text small">      [kernelbase!VirtualAlloc+0x23] ← SPOOFED</text>
+  
+  <rect x="100" y="1430" width="400" height="30" stroke="#333" fill="#f0f0f0"/>
+  <text x="105" y="1450" class="text small">      [Previous legitimate frames...]</text>
+  
+  <text x="100" y="1500" class="text title">Thread Stack After Context Modification:</text>
+  <rect x="100" y="1520" width="400" height="30" stroke="#333" fill="#f0f0f0"/>
+  <text x="105" y="1540" class="text small">RSP → [WorkerThread] (Current)</text>
+  
+  <rect x="100" y="1550" width="400" height="30" stroke="#ff9800" fill="#fff3e0"/>
+  <text x="105" y="1570" class="text small">      [ntdll!NtCreateFile+0x45] ← FAKE</text>
+  
+  <rect x="100" y="1580" width="400" height="30" stroke="#ff9800" fill="#fff3e0"/>
+  <text x="105" y="1600" class="text small">      [kernelbase!RegOpenKeyExW+0x123] ← FAKE</text>
+  
+  <rect x="100" y="1610" width="400" height="30" stroke="#333" fill="#f0f0f0"/>
+  <text x="105" y="1630" class="text small">      [kernel32!BaseThreadInitThunk]</text>
+</svg>
