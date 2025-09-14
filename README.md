@@ -1,5 +1,5 @@
 # SPUUF
-
+**Note: A x64 reverse shell payload is baked in with IP:PORT 127.0.0.1:7777 for testing!**
 
 ## Overview
 
